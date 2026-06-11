@@ -1,0 +1,140 @@
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #1a202c;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --accent: #2563eb;
+  --current: #dc2626;
+  --current-bg: #fee2e2;
+  --resolved: #16a34a;
+  --resolved-bg: #dcfce7;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+header { padding: 1.5rem 2rem 0.5rem; }
+header h1 { margin: 0; font-size: 1.5rem; }
+header h1 a { color: var(--text); text-decoration: none; }
+.subtitle { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.9rem; }
+
+main { padding: 0 2rem 2rem; max-width: 1100px; }
+
+.stats-bar {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  flex-wrap: wrap;
+}
+.stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+}
+.stat span { font-size: 1.4rem; font-weight: 700; }
+.stat label { font-size: 0.75rem; color: var(--muted); }
+
+#filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+#filters input[type="search"] { flex: 1 1 260px; }
+#filters input, #filters select, #filters button {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: var(--card);
+}
+#filters input:focus, #filters select:focus { outline: 2px solid var(--accent); }
+.date-filters { font-size: 0.9rem; }
+.date-filters summary { cursor: pointer; padding: 0.5rem 0.2rem; color: var(--accent); }
+.date-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+.date-grid label { display: flex; flex-direction: column; font-size: 0.8rem; color: var(--muted); }
+button.secondary { cursor: pointer; color: var(--muted); }
+
+.result-meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+
+.drug-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9rem 1.2rem;
+  margin-bottom: 0.6rem;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.drug-card:hover { border-color: var(--accent); }
+.drug-card h3 { margin: 0 0 0.3rem; font-size: 1.05rem; }
+.drug-card .meta { color: var(--muted); font-size: 0.82rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  vertical-align: middle;
+  margin-left: 0.5rem;
+}
+.badge.current { color: var(--current); background: var(--current-bg); }
+.badge.resolved { color: var(--resolved); background: var(--resolved-bg); }
+.badge.event { color: var(--accent); background: #dbeafe; margin-left: 0; }
+
+.pagination { display: flex; gap: 0.5rem; align-items: center; margin-top: 1rem; }
+.pagination button {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+  cursor: pointer;
+}
+.pagination button:disabled { opacity: 0.4; cursor: default; }
+
+.back { display: inline-block; margin-bottom: 1rem; color: var(--accent); text-decoration: none; }
+
+.detail-header h2 { margin: 0.2rem 0; }
+.detail-section { margin-top: 1.5rem; }
+.detail-section h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+
+table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; }
+th, td { text-align: left; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: #f1f5f9; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
+tr:last-child td { border-bottom: none; }
+
+.timeline { list-style: none; padding: 0; margin: 0; }
+.timeline li {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+.timeline .when { color: var(--muted); margin-left: 0.5rem; }
+.timeline .diff { margin: 0.4rem 0 0; padding-left: 1.2rem; color: var(--muted); }
+
+.empty { color: var(--muted); padding: 2rem 0; text-align: center; }
+
+footer { padding: 1rem 2rem 2rem; color: var(--muted); font-size: 0.78rem; max-width: 1100px; }
+footer a { color: var(--accent); }

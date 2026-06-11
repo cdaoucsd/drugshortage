@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Drug Shortage Tracker</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <h1><a href="#/" id="home-link">💊 Drug Shortage Tracker</a></h1>
+    <p class="subtitle">FDA drug shortage data via openFDA <span id="last-sync"></span></p>
+  </header>
+
+  <section id="stats-bar" class="stats-bar" hidden>
+    <div class="stat"><span id="stat-current-drugs">–</span><label>drugs in shortage</label></div>
+    <div class="stat"><span id="stat-current-records">–</span><label>active records</label></div>
+    <div class="stat"><span id="stat-resolved-records">–</span><label>resolved records</label></div>
+    <div class="stat"><span id="stat-week-events">–</span><label>changes this week</label></div>
+  </section>
+
+  <main>
+    <div id="view-list">
+      <form id="filters" autocomplete="off">
+        <input type="search" id="f-q" placeholder="Search drug, brand, or manufacturer…" />
+        <select id="f-status">
+          <option value="">Any status</option>
+          <option value="Current">Current</option>
+          <option value="Resolved">Resolved</option>
+        </select>
+        <input type="text" id="f-category" placeholder="Therapeutic category" />
+        <details class="date-filters">
+          <summary>Date filters</summary>
+          <div class="date-grid">
+            <label>Posted from <input type="date" id="f-posted-from" /></label>
+            <label>Posted to <input type="date" id="f-posted-to" /></label>
+            <label>Resolved from <input type="date" id="f-resolved-from" /></label>
+            <label>Resolved to <input type="date" id="f-resolved-to" /></label>
+          </div>
+        </details>
+        <button type="button" id="f-clear" class="secondary">Clear</button>
+      </form>
+
+      <div id="result-meta" class="result-meta"></div>
+      <div id="drug-list"></div>
+      <div id="pagination" class="pagination"></div>
+    </div>
+
+    <div id="view-detail" hidden>
+      <a href="#/" class="back">← Back to results</a>
+      <div id="detail-content"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Data: <a href="https://open.fda.gov/apis/drug/drugshortages/">openFDA Drug Shortages API</a>.
+    Not medical advice; verify with FDA before clinical decisions.</p>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

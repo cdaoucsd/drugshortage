@@ -6,9 +6,9 @@ notifications. See [PLAN.md](PLAN.md) for the full design.
 
 ## Status
 
-**Phase 1 (data layer) — done.** openFDA client, SQLite schema, and the
-sync/diff engine that detects new, updated, resolved, and reposted shortages.
-Phases 2–4 (API + search UI, notifications, dashboard) are next.
+**Phases 1–2 done.** Data layer (openFDA client, SQLite schema, sync/diff
+engine) plus the JSON API and search web UI. Phase 3 (email notifications)
+and Phase 4 (dashboard, polish) are next.
 
 ## Setup
 
@@ -25,7 +25,14 @@ uv run pytest    # run tests
 uv run python -m app.cli seed    # first import: full pull, no events emitted
 uv run python -m app.cli sync    # incremental: pull, diff, record change events
 uv run python -m app.cli stats   # record/event counts
+
+uv run uvicorn app.api:app       # serve web UI + API at http://127.0.0.1:8000
 ```
+
+The web UI supports search by drug/brand/manufacturer, filters for status,
+therapeutic category, and posted/resolved date ranges, and a per-drug detail
+page with the manufacturer breakdown and change history. Interactive API docs
+are at `/docs`.
 
 Environment variables:
 
@@ -44,4 +51,7 @@ openFDA dataset and appends `shortage_events` rows (`new_shortage`, `updated`,
   presentation) and `shortage_events` (append-only change log)
 - `app/sync.py` — upsert + diff engine; record identity is a hash of
   generic name + company + presentation + NDC since openFDA provides no stable ID
+- `app/api.py` — FastAPI app: grouped drug search, record search, detail with
+  event timeline, stats; serves the static frontend
+- `app/static/` — dependency-free HTML/JS/CSS single-page UI
 - `app/cli.py` — `seed` / `sync` / `stats` commands
