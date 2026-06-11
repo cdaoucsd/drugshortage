@@ -59,6 +59,20 @@ async function loadStats() {
       $("#last-sync").textContent = `· last sync ${s.last_sync.slice(0, 16).replace("T", " ")} UTC`;
     }
     $("#stats-bar").hidden = false;
+
+    if ((s.top_categories || []).length || (s.longest_current || []).length) {
+      $("#dash-categories").innerHTML = (s.top_categories || [])
+        .map((c) => `<li>${esc(c.category)} <b>${c.drugs}</b></li>`)
+        .join("") || "<li>—</li>";
+      $("#dash-longest").innerHTML = (s.longest_current || [])
+        .map(
+          (d) =>
+            `<li><a href="#/drug/${encodeURIComponent(d.generic_name)}">${esc(d.generic_name)}</a>
+             <small>since ${fmtDate(d.posted)}</small></li>`
+        )
+        .join("") || "<li>—</li>";
+      $("#dashboard").hidden = false;
+    }
   } catch (e) {
     console.warn("stats unavailable", e);
   }
@@ -150,6 +164,10 @@ async function loadDetail(name) {
     <div class="detail-header">
       <h2>${esc(d.generic_name)} ${badge(d.status)}</h2>
       ${reasons.length ? `<p><b>Reason${reasons.length > 1 ? "s" : ""}:</b> ${reasons.map(esc).join(" · ")}</p>` : ""}
+      <button class="subscribe-btn" type="button"
+        onclick="openSubscribe('drug_name', ${JSON.stringify(d.generic_name).replace(/"/g, "&quot;")})">
+        🔔 Alert me about this drug
+      </button>
     </div>
     <div class="detail-section">
       <h3>Manufacturers &amp; presentations (${d.records.length})</h3>
@@ -188,6 +206,47 @@ function onFilterChange() {
   debounceTimer = setTimeout(loadList, 250);
 }
 
+/* ---------------- subscriptions ---------------- */
+
+function openSubscribe(matchType, matchValue) {
+  if (matchType) $("#s-match-type").value = matchType;
+  if (matchValue !== undefined) $("#s-match-value").value = matchValue;
+  $("#s-message").textContent = "";
+  $("#s-value-label").hidden = $("#s-match-type").value === "all";
+  $("#subscribe-dialog").showModal();
+}
+window.openSubscribe = openSubscribe;
+
+async function submitSubscription(e) {
+  e.preventDefault();
+  const notifyOn = [...document.querySelectorAll("#subscribe-form input[type=checkbox]:checked")]
+    .map((c) => c.value);
+  const body = {
+    email: $("#s-email").value.trim(),
+    match_type: $("#s-match-type").value,
+    match_value: $("#s-match-value").value.trim() || null,
+    notify_on: notifyOn,
+  };
+  const msg = $("#s-message");
+  msg.textContent = "Submitting…";
+  try {
+    const resp = await fetch("/api/subscriptions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      msg.textContent = `Error: ${err.detail?.[0]?.msg || err.detail || resp.statusText}`;
+      return;
+    }
+    msg.textContent = "✓ Check your inbox to confirm the subscription.";
+    setTimeout(() => $("#subscribe-dialog").close(), 2500);
+  } catch {
+    msg.textContent = "Network error — try again.";
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   for (const sel of Object.values(FILTER_INPUTS)) {
     $(sel).addEventListener("input", onFilterChange);
@@ -197,6 +256,12 @@ document.addEventListener("DOMContentLoaded", () => {
     onFilterChange();
   });
   $("#filters").addEventListener("submit", (e) => e.preventDefault());
+  $("#open-subscribe").addEventListener("click", () => openSubscribe());
+  $("#s-cancel").addEventListener("click", () => $("#subscribe-dialog").close());
+  $("#s-match-type").addEventListener("change", () => {
+    $("#s-value-label").hidden = $("#s-match-type").value === "all";
+  });
+  $("#subscribe-form").addEventListener("submit", submitSubscription);
   window.addEventListener("hashchange", route);
   loadStats();
   route();

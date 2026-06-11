@@ -17,7 +17,52 @@
     <div class="stat"><span id="stat-current-records">–</span><label>active records</label></div>
     <div class="stat"><span id="stat-resolved-records">–</span><label>resolved records</label></div>
     <div class="stat"><span id="stat-week-events">–</span><label>changes this week</label></div>
+    <button id="open-subscribe" class="subscribe-btn" type="button">🔔 Get email alerts</button>
+    <a class="rss-link" href="/feed.xml" title="RSS feed of recent changes">RSS</a>
   </section>
+
+  <section id="dashboard" class="dashboard" hidden>
+    <div class="panel">
+      <h3>Top affected categories</h3>
+      <ul id="dash-categories"></ul>
+    </div>
+    <div class="panel">
+      <h3>Longest-running shortages</h3>
+      <ul id="dash-longest"></ul>
+    </div>
+  </section>
+
+  <dialog id="subscribe-dialog">
+    <form id="subscribe-form" method="dialog">
+      <h3>Email alerts</h3>
+      <label>Email
+        <input type="email" id="s-email" required placeholder="you@example.com" />
+      </label>
+      <label>Alert me about
+        <select id="s-match-type">
+          <option value="drug_name">A drug (name contains…)</option>
+          <option value="manufacturer">A manufacturer (name contains…)</option>
+          <option value="category">A therapeutic category</option>
+          <option value="all">All shortages</option>
+        </select>
+      </label>
+      <label id="s-value-label">Match text
+        <input type="text" id="s-match-value" placeholder="e.g. amoxicillin" />
+      </label>
+      <fieldset>
+        <legend>Notify me when a shortage is…</legend>
+        <label><input type="checkbox" value="new_shortage" checked /> new</label>
+        <label><input type="checkbox" value="updated" /> updated</label>
+        <label><input type="checkbox" value="resolved" checked /> resolved</label>
+        <label><input type="checkbox" value="reposted" checked /> reposted</label>
+      </fieldset>
+      <div class="dialog-actions">
+        <button type="button" id="s-cancel" class="secondary">Cancel</button>
+        <button type="submit" id="s-submit">Subscribe</button>
+      </div>
+      <p id="s-message" class="form-message"></p>
+    </form>
+  </dialog>
 
   <main>
     <div id="view-list">

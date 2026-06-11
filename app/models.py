@@ -86,6 +86,8 @@ class ShortageEvent(Base):
     occurred_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
     # JSON: {field: {"old": ..., "new": ...}} for `updated` events
     diff_json: Mapped[str | None] = mapped_column(Text)
+    # Set once the notifier has processed this event (digest watermark).
+    notified_at: Mapped[datetime | None] = mapped_column(DateTime)
 
     record: Mapped[ShortageRecord] = relationship(back_populates="events")
 
@@ -93,4 +95,34 @@ class ShortageEvent(Base):
         Index("ix_shortage_events_record_id", "record_id"),
         Index("ix_shortage_events_event_type", "event_type"),
         Index("ix_shortage_events_occurred_at", "occurred_at"),
+        Index("ix_shortage_events_notified_at", "notified_at"),
     )
+
+
+class Subscription(Base):
+    __tablename__ = "subscriptions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(String(320))
+    # drug_name | manufacturer | category | all
+    match_type: Mapped[str] = mapped_column(String(32))
+    # substring matched case-insensitively against the relevant field;
+    # empty for match_type=all
+    match_value: Mapped[str | None] = mapped_column(Text)
+    # comma-separated event types to receive, e.g. "new_shortage,resolved"
+    notify_on: Mapped[str] = mapped_column(
+        Text, default="new_shortage,updated,resolved,reposted"
+    )
+
+    verified: Mapped[bool] = mapped_column(default=False)
+    verify_token: Mapped[str] = mapped_column(String(64), unique=True)
+    unsubscribe_token: Mapped[str] = mapped_column(String(64), unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+    __table_args__ = (
+        Index("ix_subscriptions_email", "email"),
+        Index("ix_subscriptions_verified", "verified"),
+    )
+
+    def notify_on_types(self) -> set[str]:
+        return {t.strip() for t in (self.notify_on or "").split(",") if t.strip()}

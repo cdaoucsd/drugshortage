@@ -1,10 +1,12 @@
 """Command-line entry points.
 
     python -m app.cli seed    # first import: full pull, no events emitted
-    python -m app.cli sync    # incremental: full pull, diff, emit events
+    python -m app.cli sync    # incremental: pull, diff, emit events, notify
+    python -m app.cli notify  # send digests for any pending events
     python -m app.cli stats   # quick record/event counts
 
-DATABASE_URL and OPENFDA_API_KEY are read from the environment.
+DATABASE_URL, OPENFDA_API_KEY, BASE_URL, and SMTP_* are read from the
+environment (see app/mailer.py for mail configuration).
 """
 
 import argparse
@@ -14,7 +16,9 @@ import sys
 from sqlalchemy import func, select
 
 from app.db import get_engine, init_db, make_session_factory
+from app.mailer import get_mailer
 from app.models import ShortageEvent, ShortageRecord
+from app.notify import run_notifier
 from app.openfda import OpenFDAClient
 from app.sync import sync_records
 
@@ -41,8 +45,20 @@ def cmd_sync(seed: bool) -> int:
                 print("database already seeded; use `sync` instead", file=sys.stderr)
                 return 1
         result = sync_records(session, records, emit_events=not seed)
+        sent = 0 if seed else run_notifier(session, get_mailer())
         session.commit()
     print(result.summary())
+    if not seed:
+        print(f"digests sent: {sent}")
+    return 0
+
+
+def cmd_notify() -> int:
+    factory = _session_factory()
+    with factory() as session:
+        sent = run_notifier(session, get_mailer())
+        session.commit()
+    print(f"digests sent: {sent}")
     return 0
 
 
@@ -63,7 +79,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="drugshortage")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("seed", help="initial full import (no events emitted)")
-    sub.add_parser("sync", help="pull latest data, diff, and record events")
+    sub.add_parser("sync", help="pull latest data, diff, record events, notify")
+    sub.add_parser("notify", help="send digests for pending events")
     sub.add_parser("stats", help="print record and event counts")
     args = parser.parse_args(argv)
 
@@ -71,6 +88,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_sync(seed=True)
     if args.command == "sync":
         return cmd_sync(seed=False)
+    if args.command == "notify":
+        return cmd_notify()
     return cmd_stats()
 
 
