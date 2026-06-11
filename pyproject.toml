@@ -1,0 +1,19 @@
+[project]
+name = "drugshortage"
+version = "0.1.0"
+description = "FDA drug shortage tracker backed by the openFDA API"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28.1",
+    "pydantic>=2",
+    "sqlalchemy>=2.0.50",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

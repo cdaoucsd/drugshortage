@@ -1,0 +1,82 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care.",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-06-10",
+    "results": { "skip": 0, "limit": 1000, "total": 4 }
+  },
+  "results": [
+    {
+      "generic_name": "Amoxicillin Oral Powder for Suspension",
+      "proprietary_name": "Amoxil",
+      "company_name": "Acme Pharma Inc.",
+      "status": "Current",
+      "initial_posting_date": "2025-10-28",
+      "update_date": "2026-06-01",
+      "update_type": "Revised",
+      "shortage_reason": "Demand increase for the drug",
+      "availability": "Product on intermittent back order",
+      "related_info": "See FDA statement on antibiotic supply.",
+      "therapeutic_category": ["Anti-Infective"],
+      "strength": "250 mg/5 mL",
+      "dosage_form": "Powder for Suspension",
+      "presentation": "250 mg/5 mL bottle (NDC 0001-0001-01)",
+      "package_ndc": "0001-0001-01",
+      "contact_info": "800-555-0100",
+      "openfda": {
+        "manufacturer_name": ["Acme Pharma Inc."],
+        "rxcui": ["308182"]
+      }
+    },
+    {
+      "generic_name": "Amoxicillin Oral Powder for Suspension",
+      "proprietary_name": null,
+      "company_name": "Beta Generics LLC",
+      "status": "Current",
+      "initial_posting_date": "2025-11-02",
+      "update_date": "2026-05-20",
+      "update_type": "Revised",
+      "shortage_reason": "Shortage of an active ingredient",
+      "availability": "Back ordered, release expected July 2026",
+      "therapeutic_category": ["Anti-Infective"],
+      "strength": "400 mg/5 mL",
+      "dosage_form": "Powder for Suspension",
+      "presentation": "400 mg/5 mL bottle (NDC 0002-0002-02)",
+      "package_ndc": "0002-0002-02",
+      "contact_info": "800-555-0200"
+    },
+    {
+      "generic_name": "Cisplatin Injection",
+      "company_name": "Gamma Oncology Co.",
+      "status": "Resolved",
+      "initial_posting_date": "2024-02-10",
+      "update_date": "2025-12-15",
+      "update_type": "Resolved",
+      "resolved_note": "All presentations available.",
+      "therapeutic_category": ["Oncology"],
+      "strength": "1 mg/mL",
+      "dosage_form": "Injection",
+      "presentation": "50 mg/50 mL vial (NDC 0003-0003-03)",
+      "package_ndc": "0003-0003-03",
+      "contact_info": "800-555-0300"
+    },
+    {
+      "generic_name": "Lisdexamfetamine Dimesylate Capsules",
+      "proprietary_name": "Vyvanse",
+      "company_name": "Delta Therapeutics",
+      "status": "Current",
+      "initial_posting_date": "20251201",
+      "date_of_update": "2026-04-11",
+      "type_of_update": "Revised",
+      "reason_for_shortage": "Delay in shipping of the drug",
+      "availability_info": "Limited supply available",
+      "related_information": "DEA quota related.",
+      "therapeutic_category": ["Central Nervous System", "Stimulant"],
+      "strength": "30 mg",
+      "dosage_form": "Capsule",
+      "presentation": "30 mg capsule, 100 count (NDC 0004-0004-04)",
+      "package_ndc": "0004-0004-04",
+      "contact_info": "800-555-0400"
+    }
+  ]
+}
