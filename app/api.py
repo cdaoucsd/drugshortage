@@ -31,6 +31,7 @@ from sqlalchemy import Select, case, delete, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.db import get_engine, init_db, make_session_factory
+from app.external import ashp_link, fetch_alternatives, fetch_recalls
 from app.mailer import get_mailer
 from app.models import ShortageEvent, ShortageRecord, Subscription
 from app.notify import (
@@ -154,6 +155,7 @@ class DrugListOut(BaseModel):
 class DrugDetailOut(BaseModel):
     generic_name: str
     status: str
+    ashp_link: str
     records: list[RecordOut]
     events: list[EventOut]
 
@@ -325,9 +327,42 @@ def drug_detail(generic_name: str, session: Session = Depends(get_session)):
     return DrugDetailOut(
         generic_name=generic_name,
         status=status,
+        ashp_link=ashp_link(generic_name),
         records=[RecordOut.model_validate(r) for r in records],
         events=events,
     )
+
+
+def _shortage_companies(session: Session, generic_name: str) -> list[str]:
+    rows = session.execute(
+        select(func.distinct(ShortageRecord.company_name)).where(
+            ShortageRecord.generic_name == generic_name,
+            ShortageRecord.status.ilike("current"),
+            ShortageRecord.company_name.is_not(None),
+        )
+    ).all()
+    if not rows:
+        # Drug unknown (or fully resolved): distinguish 404 from "no companies".
+        exists = session.execute(
+            select(ShortageRecord.id)
+            .where(ShortageRecord.generic_name == generic_name)
+            .limit(1)
+        ).first()
+        if not exists:
+            raise HTTPException(404, f"no shortage records for {generic_name!r}")
+    return [r[0] for r in rows]
+
+
+@app.get("/api/drugs/{generic_name}/alternatives")
+def drug_alternatives(generic_name: str, session: Session = Depends(get_session)):
+    companies = _shortage_companies(session, generic_name)
+    return fetch_alternatives(generic_name, companies)
+
+
+@app.get("/api/drugs/{generic_name}/recalls")
+def drug_recalls(generic_name: str, session: Session = Depends(get_session)):
+    _shortage_companies(session, generic_name)  # 404 for unknown drugs
+    return fetch_recalls(generic_name)
 
 
 @app.get("/api/shortages", response_model=RecordListOut)

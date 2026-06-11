@@ -164,10 +164,16 @@ async function loadDetail(name) {
     <div class="detail-header">
       <h2>${esc(d.generic_name)} ${badge(d.status)}</h2>
       ${reasons.length ? `<p><b>Reason${reasons.length > 1 ? "s" : ""}:</b> ${reasons.map(esc).join(" · ")}</p>` : ""}
-      <button class="subscribe-btn" type="button"
-        onclick="openSubscribe('drug_name', ${JSON.stringify(d.generic_name).replace(/"/g, "&quot;")})">
-        🔔 Alert me about this drug
-      </button>
+      <div class="detail-actions">
+        <button class="subscribe-btn" type="button"
+          onclick="openSubscribe('drug_name', ${JSON.stringify(d.generic_name).replace(/"/g, "&quot;")})">
+          🔔 Alert me about this drug
+        </button>
+        <a class="ext-link" href="${esc(d.ashp_link)}" target="_blank" rel="noopener"
+           title="ASHP often reports shortages earlier than FDA">
+          Check ASHP shortage list ↗
+        </a>
+      </div>
     </div>
     <div class="detail-section">
       <h3>Manufacturers &amp; presentations (${d.records.length})</h3>
@@ -184,7 +190,71 @@ async function loadDetail(name) {
       ${d.events.length
         ? `<ul class="timeline">${d.events.map(eventItem).join("")}</ul>`
         : `<p class="empty">No changes recorded since this drug was first imported.</p>`}
+    </div>
+    <div class="detail-section" id="alternatives-section">
+      <h3>Other manufacturers (not in shortage)</h3>
+      <p class="hint">Cross-referenced against the openFDA NDC directory — verify availability with the manufacturer.</p>
+      <div id="alternatives-body" class="empty">Loading…</div>
+    </div>
+    <div class="detail-section" id="recalls-section">
+      <h3>Recent recalls mentioning this drug</h3>
+      <div id="recalls-body" class="empty">Loading…</div>
     </div>`;
+  loadAlternatives(name);
+  loadRecalls(name);
+}
+
+async function loadAlternatives(name) {
+  const body = $("#alternatives-body");
+  try {
+    const d = await fetchJSON(`/api/drugs/${encodeURIComponent(name)}/alternatives`);
+    if (!d.available) {
+      body.textContent = "Lookup unavailable right now.";
+      return;
+    }
+    if (!d.alternatives.length) {
+      body.textContent = `No other labelers found in the NDC directory for “${d.search_term}”.`;
+      return;
+    }
+    body.classList.remove("empty");
+    body.innerHTML = `<table>
+      <thead><tr><th>Labeler</th><th>Products listed</th><th>Dosage forms</th></tr></thead>
+      <tbody>${d.alternatives
+        .map(
+          (a) => `<tr><td>${esc(a.labeler)}</td><td>${a.products}</td>
+                  <td>${a.dosage_forms.map(esc).join(", ")}</td></tr>`
+        )
+        .join("")}</tbody></table>`;
+  } catch {
+    body.textContent = "Lookup unavailable right now.";
+  }
+}
+
+async function loadRecalls(name) {
+  const body = $("#recalls-body");
+  try {
+    const d = await fetchJSON(`/api/drugs/${encodeURIComponent(name)}/recalls`);
+    if (!d.available) {
+      body.textContent = "Lookup unavailable right now.";
+      return;
+    }
+    if (!d.recalls.length) {
+      body.textContent = "No recent recalls found.";
+      return;
+    }
+    body.classList.remove("empty");
+    body.innerHTML = `<table>
+      <thead><tr><th>Initiated</th><th>Firm</th><th>Class</th><th>Status</th><th>Reason</th></tr></thead>
+      <tbody>${d.recalls
+        .map(
+          (r) => `<tr><td>${fmtDate(r.initiated)}</td><td>${esc(r.recalling_firm)}</td>
+                  <td>${esc(r.classification || "")}</td><td>${esc(r.status || "")}</td>
+                  <td>${esc(r.reason || "")}</td></tr>`
+        )
+        .join("")}</tbody></table>`;
+  } catch {
+    body.textContent = "Lookup unavailable right now.";
+  }
 }
 
 function route() {

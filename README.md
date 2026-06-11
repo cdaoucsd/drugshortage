@@ -20,6 +20,15 @@ See [PLAN.md](PLAN.md) for the full design.
 - **Dashboard & RSS** — current/resolved counts, changes this week, top
   affected categories, longest-running shortages, and an RSS feed of recent
   changes at `/feed.xml`.
+- **Alternatives** — for a drug in shortage, other labelers from the openFDA
+  NDC directory that have no current shortage record (best-effort name
+  matching; verify with the manufacturer).
+- **Recalls overlay** — recent recalls mentioning the drug, from openFDA's
+  enforcement endpoint.
+- **ASHP cross-reference** — each drug links out to ASHP's public shortage
+  search (ASHP often reports earlier than FDA). ASHP's machine-readable feed
+  is a licensed product, so there is no automated import; if a license is
+  obtained, add an importer alongside `app/openfda.py`.
 - **JSON API** — everything above is served from a documented API (`/docs`).
 
 ## Quick start
@@ -82,6 +91,8 @@ uv run python -m app.cli stats   # record/event counts
 - `app/sync.py` — upsert + diff engine; record identity is a hash of
   generic name + company + presentation + NDC since openFDA provides no stable ID
 - `app/notify.py` — matches pending events to subscriptions, builds digests
+- `app/external.py` — NDC-directory alternatives, enforcement recalls
+  (on-demand, 6 h in-process cache), ASHP link builder
 - `app/mailer.py` — SMTP (env-configured) or console fallback
 - `app/api.py` — FastAPI app: search, detail, stats, subscriptions, RSS,
   optional scheduler; serves the static frontend
